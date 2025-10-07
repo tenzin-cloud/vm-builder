@@ -17,7 +17,7 @@ resource "libvirt_pool" "datastore" {
 }
 
 resource "libvirt_volume" "ubuntu_cloud_image" {
-  source = "noble-server-cloudimg-amd64.img"
+  source = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
   name   = "noble-server-cloudimg-amd64.img"
   pool   = libvirt_pool.datastore.name
   format = "qcow2"
