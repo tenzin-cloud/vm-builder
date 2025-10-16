@@ -18,9 +18,9 @@ provider "libvirt" {
 
 module "virtual_machines" {
 
-  count  = 1
+  count  = var.vm_count
   source = "./modules/ubuntu-vm"
-  name   = "vm-${count.index}"
+  name   = "${var.vm_name}-${count.index}"
 
   automation_user        = var.vm_automation_user
   automation_user_pubkey = var.vm_automation_user_pubkey
@@ -29,9 +29,9 @@ module "virtual_machines" {
   console_password = var.vm_console_password
 
   # vm settings
-  cpu_count       = 2
-  memory_size_mib = 4 * 1024  // gib
-  disk_size_mib   = 48 * 1024 // gib
+  cpu_count       = var.vm_cpu_count
+  memory_size_mib = var.vm_memory_size_gib * 1024    // gib
+  disk_size_mib   = var.vm_root_disk_size_gib * 1024 // gib
 
   # gpu settings
   # has_gpu_passthru = true

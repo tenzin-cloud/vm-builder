@@ -30,3 +30,31 @@ ubuntu@nvidia-1:~/workspaces/vm-builder$ virsh list
 ----------------------
  1    vm-0   running
 ```
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_libvirt"></a> [libvirt](#requirement\_libvirt) | 0.8.3 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_virtual_machines"></a> [virtual\_machines](#module\_virtual\_machines) | ./modules/ubuntu-vm | n/a |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_vm_automation_user"></a> [vm\_automation\_user](#input\_vm\_automation\_user) | n/a | `string` | n/a | yes |
+| <a name="input_vm_automation_user_pubkey"></a> [vm\_automation\_user\_pubkey](#input\_vm\_automation\_user\_pubkey) | n/a | `string` | n/a | yes |
+| <a name="input_vm_console_password"></a> [vm\_console\_password](#input\_vm\_console\_password) | n/a | `string` | n/a | yes |
+| <a name="input_vm_console_user"></a> [vm\_console\_user](#input\_vm\_console\_user) | n/a | `string` | n/a | yes |
+| <a name="input_vm_count"></a> [vm\_count](#input\_vm\_count) | n/a | `number` | `1` | no |
+| <a name="input_vm_cpu_count"></a> [vm\_cpu\_count](#input\_vm\_cpu\_count) | n/a | `number` | `2` | no |
+| <a name="input_vm_memory_size_gib"></a> [vm\_memory\_size\_gib](#input\_vm\_memory\_size\_gib) | n/a | `number` | `4` | no |
+| <a name="input_vm_name"></a> [vm\_name](#input\_vm\_name) | n/a | `string` | `"vm"` | no |
+| <a name="input_vm_root_disk_size_gib"></a> [vm\_root\_disk\_size\_gib](#input\_vm\_root\_disk\_size\_gib) | n/a | `number` | `48` | no |
+<!-- END_TF_DOCS -->
