@@ -11,6 +11,12 @@ sudo apt-get install -y mkisofs xsltproc
 Create a `terraform.tfvars` and populate the needed variables.  See example below.
 
 ```hcl
+vm_count           = 1
+vm_name            = "zfs"
+vm_cpu_count       = 6
+vm_memory_size_gib = 12
+vm_disk_sizes_gib  = [64, 64, 64, 64]
+
 ## for direct console access for the new VMs
 vm_console_user     = "ubuntu"
 vm_console_password = "ubuntu"
@@ -25,10 +31,31 @@ vm_automation_user_pubkey = "ssh-rsa ..long pub key string here.."
 - Use `virsh console <vm name>` to connect to the VM's console, use control+] to break out of the console.
 
 ```
-ubuntu@nvidia-1:~/workspaces/vm-builder$ virsh list
- Id   Name   State
-----------------------
- 1    vm-0   running
+ubuntu@sparkle-1:~/vm-builder$ virsh list
+ Id   Name    State
+-----------------------
+ 4    zfs-0   running
+
+ubuntu@sparkle-1:~/vm-builder$ virsh console zfs-0
+Connected to domain 'zfs-0'
+Escape character is ^] (Ctrl + ])
+zfs-0 login: ubuntu
+Password:
+...
+...
+
+root@zfs-0:~# lsblk
+NAME    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sr0      11:0    1  366K  0 rom  
+vda     253:0    0   64G  0 disk 
+├─vda1  253:1    0   63G  0 part /
+├─vda14 253:14   0    4M  0 part 
+├─vda15 253:15   0  106M  0 part /boot/efi
+└─vda16 259:0    0  913M  0 part /boot
+vdb     253:16   0   64G  0 disk 
+vdc     253:32   0   64G  0 disk 
+vdd     253:48   0   64G  0 disk 
+
 ```
 
 <!-- BEGIN_TF_DOCS -->
