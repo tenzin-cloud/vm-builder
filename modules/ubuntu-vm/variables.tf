@@ -3,14 +3,14 @@ variable "name" {
   description = "The name of the virtual machine"
 }
 
-variable "memory_size_mib" {
+variable "memory_size_gib" {
   type    = number
-  default = 2048
+  default = 2
 }
 
-variable "disk_size_mib" {
-  type    = number
-  default = 8192
+variable "disk_sizes_gib" {
+  type    = list(number)
+  default = [8]
 }
 
 variable "cpu_count" {

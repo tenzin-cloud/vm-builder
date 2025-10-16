@@ -54,7 +54,7 @@ ubuntu@nvidia-1:~/workspaces/vm-builder$ virsh list
 | <a name="input_vm_console_user"></a> [vm\_console\_user](#input\_vm\_console\_user) | The username of the console user | `string` | n/a | yes |
 | <a name="input_vm_count"></a> [vm\_count](#input\_vm\_count) | The number of VM(s) to create | `number` | `1` | no |
 | <a name="input_vm_cpu_count"></a> [vm\_cpu\_count](#input\_vm\_cpu\_count) | The CPU count of the VM(s) | `number` | `2` | no |
+| <a name="input_vm_disk_sizes_gib"></a> [vm\_disk\_sizes\_gib](#input\_vm\_disk\_sizes\_gib) | The disk size of the VM(s) in GiB, the first element is the root disk size, followed by data disks if any | `list(number)` | <pre>[<br/>  48<br/>]</pre> | no |
 | <a name="input_vm_memory_size_gib"></a> [vm\_memory\_size\_gib](#input\_vm\_memory\_size\_gib) | The memory size of the VM(s) in GiB | `number` | `4` | no |
 | <a name="input_vm_name"></a> [vm\_name](#input\_vm\_name) | The name to give to the VM(s) | `string` | `"vm"` | no |
-| <a name="input_vm_root_disk_size_gib"></a> [vm\_root\_disk\_size\_gib](#input\_vm\_root\_disk\_size\_gib) | The root disk size of the VM(s) in GiB | `number` | `48` | no |
 <!-- END_TF_DOCS -->

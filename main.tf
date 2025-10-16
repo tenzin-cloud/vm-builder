@@ -30,8 +30,8 @@ module "virtual_machines" {
 
   # vm settings
   cpu_count       = var.vm_cpu_count
-  memory_size_mib = var.vm_memory_size_gib * 1024    // gib
-  disk_size_mib   = var.vm_root_disk_size_gib * 1024 // gib
+  memory_size_gib = var.vm_memory_size_gib
+  disk_sizes_gib  = var.vm_disk_sizes_gib
 
   # gpu settings
   # has_gpu_passthru = true

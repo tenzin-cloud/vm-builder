@@ -22,10 +22,10 @@ variable "vm_memory_size_gib" {
   description = "The memory size of the VM(s) in GiB"
 }
 
-variable "vm_root_disk_size_gib" {
-  type        = number
-  default     = 48
-  description = "The root disk size of the VM(s) in GiB"
+variable "vm_disk_sizes_gib" {
+  type        = list(number)
+  default     = [48]
+  description = "The disk size of the VM(s) in GiB, the first element is the root disk size, followed by data disks if any"
 }
 
 variable "vm_console_user" {

@@ -42,14 +42,23 @@ resource "libvirt_volume" "root_disk" {
   name             = "${var.name}-root-disk.qcow2"
   base_volume_name = libvirt_volume.ubuntu_cloud_image.name
   base_volume_pool = libvirt_pool.datastore.name
-  size             = var.disk_size_mib * 1024 * 1024 // size must be in bytes
+  size             = var.disk_sizes_gib[0] * 1024 * 1024 * 1024 // size must be in bytes
   pool             = libvirt_pool.datastore.name
 }
+
+resource "libvirt_volume" "data_disk" {
+  // grab a slice from the list disk_sizes_gib, ignore the first element because its the root disk size
+  for_each = { for i, v in slice(var.disk_sizes_gib, 1, length(var.disk_sizes_gib)) : i => v }
+  name     = "${var.name}-data-${each.key}-disk.qcow2"
+  size     = each.value * 1024 * 1024 * 1024 // size must be in bytes
+  pool     = libvirt_pool.datastore.name
+}
+
 
 resource "libvirt_domain" "machine" {
   name      = var.name
   autostart = var.autostart
-  memory    = var.memory_size_mib
+  memory    = var.memory_size_gib * 1024 // memory must be in mib
   vcpu      = var.cpu_count
   cpu {
     mode = "host-passthrough"
@@ -79,6 +88,14 @@ resource "libvirt_domain" "machine" {
   cloudinit = libvirt_cloudinit_disk.cloudinit_iso.id
   disk {
     volume_id = libvirt_volume.root_disk.id
+  }
+
+  dynamic "disk" {
+    // grab a slice from the list disk_sizes_gib, ignore the first element because its the root disk size
+    for_each = { for i, _ in slice(var.disk_sizes_gib, 1, length(var.disk_sizes_gib)) : i => true }
+    content {
+      volume_id = libvirt_volume.data_disk[disk.key].id
+    }
   }
 
   lifecycle {
