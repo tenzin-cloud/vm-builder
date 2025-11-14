@@ -12,10 +12,10 @@ Create a `terraform.tfvars` and populate the needed variables.  See example belo
 
 ```hcl
 vm_count           = 1
-vm_name            = "zfs"
+vm_name            = "ubuntu"
 vm_cpu_count       = 6
 vm_memory_size_gib = 12
-vm_disk_sizes_gib  = [64, 64, 64, 64]
+vm_disk_sizes_gib  = [64, 64, 64, 64, 64, 64, 64, 64]
 
 ## for direct console access for the new VMs
 vm_console_user     = "ubuntu"
@@ -32,29 +32,37 @@ vm_automation_user_pubkey = "ssh-rsa ..long pub key string here.."
 
 ```
 ubuntu@sparkle-1:~/vm-builder$ virsh list
- Id   Name    State
------------------------
- 4    zfs-0   running
+ Id   Name       State
+--------------------------
+ 2    code-0     running
+ 3    k8s-0      running
+ 4    k8s-1      running
+ 5    k8s-2      running
+ 28   ubuntu-0   running
 
-ubuntu@sparkle-1:~/vm-builder$ virsh console zfs-0
-Connected to domain 'zfs-0'
+ubuntu@sparkle-1:~/vm-builder$ virsh console ubuntu-0
+Connected to domain 'ubuntu-0'
 Escape character is ^] (Ctrl + ])
-zfs-0 login: ubuntu
+ubuntu-0 login: ubuntu
 Password:
 ...
 ...
 
-root@zfs-0:~# lsblk
+root@ubuntu-0:~# lsblk
 NAME    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
-sr0      11:0    1  366K  0 rom  
-vda     253:0    0   64G  0 disk 
+sr0      11:0    1   44K  0 rom
+vda     253:0    0   64G  0 disk
 ├─vda1  253:1    0   63G  0 part /
-├─vda14 253:14   0    4M  0 part 
+├─vda14 253:14   0    4M  0 part
 ├─vda15 253:15   0  106M  0 part /boot/efi
 └─vda16 259:0    0  913M  0 part /boot
-vdb     253:16   0   64G  0 disk 
-vdc     253:32   0   64G  0 disk 
-vdd     253:48   0   64G  0 disk 
+vdb     253:16   0   64G  0 disk
+vdc     253:32   0   64G  0 disk
+vdd     253:48   0   64G  0 disk
+vde     253:64   0   64G  0 disk
+vdf     253:80   0   64G  0 disk
+vdg     253:96   0   64G  0 disk
+vdh     253:112  0   64G  0 disk
 
 ```
 
@@ -63,7 +71,7 @@ vdd     253:48   0   64G  0 disk
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_libvirt"></a> [libvirt](#requirement\_libvirt) | 0.8.3 |
+| <a name="requirement_libvirt"></a> [libvirt](#requirement\_libvirt) | ~>0.9 |
 
 ## Modules
 
@@ -81,7 +89,7 @@ vdd     253:48   0   64G  0 disk
 | <a name="input_vm_console_user"></a> [vm\_console\_user](#input\_vm\_console\_user) | The username of the console user | `string` | n/a | yes |
 | <a name="input_vm_count"></a> [vm\_count](#input\_vm\_count) | The number of VM(s) to create | `number` | `1` | no |
 | <a name="input_vm_cpu_count"></a> [vm\_cpu\_count](#input\_vm\_cpu\_count) | The CPU count of the VM(s) | `number` | `2` | no |
-| <a name="input_vm_disk_sizes_gib"></a> [vm\_disk\_sizes\_gib](#input\_vm\_disk\_sizes\_gib) | The disk size of the VM(s) in GiB, the first element is the root disk size, followed by data disks if any | `list(number)` | <pre>[<br/>  48<br/>]</pre> | no |
+| <a name="input_vm_disk_sizes_gib"></a> [vm\_disk\_sizes\_gib](#input\_vm\_disk\_sizes\_gib) | The disk size of the VM(s) in GiB, the first element is the root disk size, followed by data disks if any, with max of 8 disks. | `list(number)` | <pre>[<br/>  48<br/>]</pre> | no |
 | <a name="input_vm_memory_size_gib"></a> [vm\_memory\_size\_gib](#input\_vm\_memory\_size\_gib) | The memory size of the VM(s) in GiB | `number` | `4` | no |
 | <a name="input_vm_name"></a> [vm\_name](#input\_vm\_name) | The name to give to the VM(s) | `string` | `"vm"` | no |
 <!-- END_TF_DOCS -->

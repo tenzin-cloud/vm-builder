@@ -25,7 +25,7 @@ variable "vm_memory_size_gib" {
 variable "vm_disk_sizes_gib" {
   type        = list(number)
   default     = [48]
-  description = "The disk size of the VM(s) in GiB, the first element is the root disk size, followed by data disks if any"
+  description = "The disk size of the VM(s) in GiB, the first element is the root disk size, followed by data disks if any, with max of 8 disks."
 }
 
 variable "vm_console_user" {
