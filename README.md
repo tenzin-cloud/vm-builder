@@ -77,7 +77,8 @@ vdh     253:112  0   64G  0 disk
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_virtual_machines"></a> [virtual\_machines](#module\_virtual\_machines) | ./modules/ubuntu-vm | n/a |
+| <a name="module_centos-vm"></a> [centos-vm](#module\_centos-vm) | ./modules/centos-vm | n/a |
+| <a name="module_ubuntu-vm"></a> [ubuntu-vm](#module\_ubuntu-vm) | ./modules/ubuntu-vm | n/a |
 
 ## Inputs
 
@@ -85,6 +86,7 @@ vdh     253:112  0   64G  0 disk
 |------|-------------|------|---------|:--------:|
 | <a name="input_vm_automation_user"></a> [vm\_automation\_user](#input\_vm\_automation\_user) | The username of the remote SSH user | `string` | n/a | yes |
 | <a name="input_vm_automation_user_pubkey"></a> [vm\_automation\_user\_pubkey](#input\_vm\_automation\_user\_pubkey) | The SSH public key of the remote SSH user | `string` | n/a | yes |
+| <a name="input_vm_cloud_image_url"></a> [vm\_cloud\_image\_url](#input\_vm\_cloud\_image\_url) | The URL to the cloud image suitable for the selected VM operating system | `string` | n/a | yes |
 | <a name="input_vm_console_password"></a> [vm\_console\_password](#input\_vm\_console\_password) | The password of the console user | `string` | n/a | yes |
 | <a name="input_vm_console_user"></a> [vm\_console\_user](#input\_vm\_console\_user) | The username of the console user | `string` | n/a | yes |
 | <a name="input_vm_count"></a> [vm\_count](#input\_vm\_count) | The number of VM(s) to create | `number` | `1` | no |
@@ -92,4 +94,5 @@ vdh     253:112  0   64G  0 disk
 | <a name="input_vm_disk_sizes_gib"></a> [vm\_disk\_sizes\_gib](#input\_vm\_disk\_sizes\_gib) | The disk size of the VM(s) in GiB, the first element is the root disk size, followed by data disks if any, with max of 8 disks. | `list(number)` | <pre>[<br/>  48<br/>]</pre> | no |
 | <a name="input_vm_memory_size_gib"></a> [vm\_memory\_size\_gib](#input\_vm\_memory\_size\_gib) | The memory size of the VM(s) in GiB | `number` | `4` | no |
 | <a name="input_vm_name"></a> [vm\_name](#input\_vm\_name) | The name to give to the VM(s) | `string` | `"vm"` | no |
+| <a name="input_vm_os"></a> [vm\_os](#input\_vm\_os) | The type of VM, for example: ubuntu-vm or centos-vm | `string` | n/a | yes |
 <!-- END_TF_DOCS -->

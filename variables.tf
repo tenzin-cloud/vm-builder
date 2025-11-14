@@ -48,3 +48,13 @@ variable "vm_automation_user_pubkey" {
   type        = string
   description = "The SSH public key of the remote SSH user"
 }
+
+variable "vm_os" {
+  type        = string
+  description = "The type of VM, for example: ubuntu-vm or centos-vm"
+}
+
+variable "vm_cloud_image_url" {
+  type        = string
+  description = "The URL to the cloud image suitable for the selected VM operating system"
+}
