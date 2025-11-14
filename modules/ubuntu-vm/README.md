@@ -22,10 +22,10 @@ A Terraform module that creates virtual machines on a libvirtd host.
 | [libvirt_cloudinit_disk.cloudinit_seed](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/cloudinit_disk) | resource |
 | [libvirt_domain.machine](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/domain) | resource |
 | [libvirt_pool.datastore](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/pool) | resource |
+| [libvirt_volume.cloud_image](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
 | [libvirt_volume.cloudinit_disk](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
 | [libvirt_volume.data_disks](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
 | [libvirt_volume.root_disk](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
-| [libvirt_volume.ubuntu_cloud_image](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
 
 ## Inputs
 
@@ -34,8 +34,9 @@ A Terraform module that creates virtual machines on a libvirtd host.
 | <a name="input_automation_user"></a> [automation\_user](#input\_automation\_user) | n/a | `string` | `"ubuntu"` | no |
 | <a name="input_automation_user_pubkey"></a> [automation\_user\_pubkey](#input\_automation\_user\_pubkey) | n/a | `string` | n/a | yes |
 | <a name="input_autostart"></a> [autostart](#input\_autostart) | Autostart the VM on hypervisor boot | `bool` | `true` | no |
+| <a name="input_cloud_image_url"></a> [cloud\_image\_url](#input\_cloud\_image\_url) | n/a | `string` | `"https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"` | no |
 | <a name="input_console_password"></a> [console\_password](#input\_console\_password) | n/a | `string` | n/a | yes |
-| <a name="input_console_user"></a> [console\_user](#input\_console\_user) | n/a | `string` | `"root"` | no |
+| <a name="input_console_user"></a> [console\_user](#input\_console\_user) | n/a | `string` | `"ubuntu"` | no |
 | <a name="input_cpu_count"></a> [cpu\_count](#input\_cpu\_count) | n/a | `number` | `2` | no |
 | <a name="input_disk_sizes_gib"></a> [disk\_sizes\_gib](#input\_disk\_sizes\_gib) | n/a | `list(number)` | <pre>[<br/>  8<br/>]</pre> | no |
 | <a name="input_gpu_pci_bus"></a> [gpu\_pci\_bus](#input\_gpu\_pci\_bus) | n/a | `string` | `""` | no |

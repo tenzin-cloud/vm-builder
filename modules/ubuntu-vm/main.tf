@@ -9,20 +9,20 @@ terraform {
 }
 
 resource "libvirt_pool" "datastore" {
-  name = "datastore-${var.name}"
+  name = "${var.name}-datastore"
   type = "dir"
   target = {
     path = "/data/datastore/${var.name}"
   }
 }
 
-resource "libvirt_volume" "ubuntu_cloud_image" {
-  name   = "noble-server-cloudimg-amd64"
+resource "libvirt_volume" "cloud_image" {
+  name   = "${var.name}-cloud-image"
   pool   = libvirt_pool.datastore.name
   format = "qcow2"
   create = {
     content = {
-      url = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+      url = var.cloud_image_url
     }
   }
 }
@@ -62,7 +62,7 @@ resource "libvirt_volume" "root_disk" {
   pool     = libvirt_pool.datastore.name
   format   = "qcow2"
   backing_store = {
-    path   = libvirt_volume.ubuntu_cloud_image.path
+    path   = libvirt_volume.cloud_image.path
     format = "qcow2"
   }
 }
@@ -70,7 +70,7 @@ resource "libvirt_volume" "root_disk" {
 resource "libvirt_volume" "data_disks" {
   // grab a slice from the list disk_sizes_gib, ignore the first element because its the root disk size
   for_each = { for i, v in slice(var.disk_sizes_gib, 1, length(var.disk_sizes_gib)) : i => v }
-  name     = "${var.name}-data-${each.key}-disk"
+  name     = "${var.name}-data-disk-${each.key}"
   capacity = each.value * 1024 * 1024 * 1024 // size must be in bytes
   pool     = libvirt_pool.datastore.name
   format   = "qcow2"
@@ -106,23 +106,11 @@ resource "libvirt_domain" "machine" {
     arch         = "x86_64"
     machine      = "q35"
     boot_devices = ["hd"]
-
-    // EFI but has more hassels because VM removal with terraform requires virsh undefine <name> --nvram first
-    // sticking with "bios" as default for ease of use
-    # firmware    = "efi"
-    # loader_path = "/usr/share/OVMF/OVMF_CODE_4M.fd"
-    # loader_readonly = true
-    # loader_type     = "pflash"
-    # nvram = {
-    #   path     = "/var/lib/libvirt/qemu/nvram/${var.name}-VARS.fd"
-    #   template = "/usr/share/OVMF/OVMF_VARS_4M.fd"
-    # }
   }
 
   features = {
     acpi = true
   }
-
 
   devices = {
     consoles = [{
@@ -131,24 +119,25 @@ resource "libvirt_domain" "machine" {
       target_type = "serial"
     }]
 
-
-    // quirk or bug, cdrom should be first otherwise it results in terraform before/ater apply inconsistencies when using more disks
-    disks = concat([{
-      device = "cdrom"
-      source = {
-        pool   = libvirt_volume.cloudinit_disk.pool
-        volume = libvirt_volume.cloudinit_disk.name
-      }
-      target = {
-        dev = "sda"
-        bus = "sata"
-      }
+    # quirk or bug, cdrom should be first otherwise it results in terraform before/ater apply inconsistencies when using more disks
+    # needs more trial and error to find the root cause
+    disks = concat([
+      {
+        device = "cdrom"
+        source = {
+          pool   = libvirt_volume.cloudinit_disk.pool
+          volume = libvirt_volume.cloudinit_disk.name
+        }
+        target = {
+          dev = "sda"
+          bus = "sata"
+        }
       },
       {
         device = "disk"
         source = {
-          // do not use file, as it results in 'raw' format in the dumpxml output
-          // in EFI 'raw' disks were not visible and failed to boot
+          # do not use file, as it results in 'raw' format in the dumpxml output
+          # in EFI 'raw' disks were not visible and failed to boot
           pool   = libvirt_volume.root_disk.pool
           volume = libvirt_volume.root_disk.name
         }
@@ -170,12 +159,13 @@ resource "libvirt_domain" "machine" {
     ]
   }
 
-  # cpu {
-  #   mode = "host-passthrough"
-  # }
+  cpu = {
+    mode = "host-passthrough"
+  }
 
-  #   xml {
-  #     xslt = var.has_gpu_passthru ? templatefile("${path.module}/templates/gpu-transform.xslt", { gpu_pci_bus = var.gpu_pci_bus }) : file("${path.module}/files/base-transform.xslt")
-  #   }
+  # TODO: support GPU passthrough
+  # xml {
+  #   xslt = var.has_gpu_passthru ? templatefile("${path.module}/templates/gpu-transform.xslt", { gpu_pci_bus = var.gpu_pci_bus }) : file("${path.module}/files/base-transform.xslt")
+  # }
 
 }
