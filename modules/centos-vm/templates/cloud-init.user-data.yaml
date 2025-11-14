@@ -1,0 +1,50 @@
+#cloud-config
+hostname: ${hostname}
+fqdn: ${hostname}.local
+manage_etc_hosts: true
+
+users:
+  - name: ${automation_user}
+    lock_passwd: false
+    gecos: Cloud User
+    groups: [adm, systemd-journal]
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "${automation_user_pubkey}"
+
+ssh_pwauth: false
+
+chpasswd:
+  expire: false
+  list: |
+    ${console_user}:${console_password}
+  plain_text: true
+
+package_update: true
+pakage_upgrade: true
+packages:
+  - git
+  - curl
+  - qemu-guest-agent
+
+power_state:
+  mode: reboot
+  message: System restart required
+  timeout: 300
+  condition: true
+
+runcmd:
+  - yum install -y epel-release
+  - yum install -y nss-mdns
+  - test -e /tmp/launch_script.sh && bash /tmp/launch_script.sh
+
+%{ if length(launch_script) > 0 ~}
+write_files:
+  - path: /tmp/launch_script.sh
+    owner: root:root
+    permissions: 0o744
+    content: |-
+      ${indent(6, launch_script)}
+
+%{~ endif ~}
