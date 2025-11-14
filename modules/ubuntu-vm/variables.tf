@@ -26,7 +26,7 @@ variable "launch_script" {
 
 variable "console_user" {
   type    = string
-  default = "root"
+  default = "ubuntu"
 }
 
 variable "console_password" {
@@ -57,4 +57,9 @@ variable "autostart" {
   type        = bool
   default     = true
   description = "Autostart the VM on hypervisor boot"
+}
+
+variable "cloud_image_url" {
+  type    = string
+  default = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
 }
