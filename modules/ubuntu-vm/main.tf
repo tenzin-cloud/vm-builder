@@ -3,7 +3,7 @@ terraform {
   required_providers {
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = "~> 0.8"
+      version = "~> 0.9"
     }
   }
 }
@@ -11,20 +11,29 @@ terraform {
 resource "libvirt_pool" "datastore" {
   name = "datastore-${var.name}"
   type = "dir"
-  target {
+  target = {
     path = "/data/datastore/${var.name}"
   }
 }
 
 resource "libvirt_volume" "ubuntu_cloud_image" {
-  source = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
-  name   = "noble-server-cloudimg-amd64.img"
+  name   = "noble-server-cloudimg-amd64"
   pool   = libvirt_pool.datastore.name
   format = "qcow2"
+  create = {
+    content = {
+      url = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+    }
+  }
 }
 
-resource "libvirt_cloudinit_disk" "cloudinit_iso" {
-  name = "${var.name}-cloudinit-seed.iso"
+resource "libvirt_cloudinit_disk" "cloudinit_seed" {
+  name      = "${var.name}-cloudinit-seed"
+  meta_data = <<-EOF
+    instance-id: ${var.name}
+    local-hostname: ${var.name}
+  EOF
+
   user_data = templatefile("${path.module}/templates/cloud-init.user-data.yaml", {
     hostname               = var.name
     launch_script          = var.launch_script
@@ -35,72 +44,138 @@ resource "libvirt_cloudinit_disk" "cloudinit_iso" {
     has_gpu_passthru       = var.has_gpu_passthru
   })
   network_config = file("${path.module}/files/cloud-init.network-config.yaml")
-  pool           = libvirt_pool.datastore.name
+}
+
+resource "libvirt_volume" "cloudinit_disk" {
+  name = "${var.name}-cloudinit-disk"
+  pool = libvirt_pool.datastore.name
+  create = {
+    content = {
+      url = libvirt_cloudinit_disk.cloudinit_seed.path
+    }
+  }
 }
 
 resource "libvirt_volume" "root_disk" {
-  name             = "${var.name}-root-disk.qcow2"
-  base_volume_name = libvirt_volume.ubuntu_cloud_image.name
-  base_volume_pool = libvirt_pool.datastore.name
-  size             = var.disk_sizes_gib[0] * 1024 * 1024 * 1024 // size must be in bytes
-  pool             = libvirt_pool.datastore.name
+  name     = "${var.name}-root-disk"
+  capacity = var.disk_sizes_gib[0] * 1024 * 1024 * 1024 // size must be in bytes
+  pool     = libvirt_pool.datastore.name
+  format   = "qcow2"
+  backing_store = {
+    path   = libvirt_volume.ubuntu_cloud_image.path
+    format = "qcow2"
+  }
 }
 
-resource "libvirt_volume" "data_disk" {
+resource "libvirt_volume" "data_disks" {
   // grab a slice from the list disk_sizes_gib, ignore the first element because its the root disk size
   for_each = { for i, v in slice(var.disk_sizes_gib, 1, length(var.disk_sizes_gib)) : i => v }
-  name     = "${var.name}-data-${each.key}-disk.qcow2"
-  size     = each.value * 1024 * 1024 * 1024 // size must be in bytes
+  name     = "${var.name}-data-${each.key}-disk"
+  capacity = each.value * 1024 * 1024 * 1024 // size must be in bytes
   pool     = libvirt_pool.datastore.name
+  format   = "qcow2"
 }
 
+locals {
+  dev_lookup = ["vdb", "vdc", "vdd", "vde", "vdf", "vdg", "vdh"] // max of 7 additional disks
+  additional_disks = [for i, _ in libvirt_volume.data_disks : {
+    device = "disk"
+    source = {
+      pool   = libvirt_volume.data_disks[i].pool
+      volume = libvirt_volume.data_disks[i].name
+    }
+    target = {
+      dev = local.dev_lookup[i] // used lookup table to convert index into dev names
+      bus = "virtio"
+    }
+  }]
+}
 
 resource "libvirt_domain" "machine" {
   name      = var.name
   autostart = var.autostart
   memory    = var.memory_size_gib * 1024 // memory must be in mib
+  unit      = "MiB"
   vcpu      = var.cpu_count
-  cpu {
-    mode = "host-passthrough"
-  }
-  machine = "q35"
+  type      = "kvm"
 
-  firmware = "/usr/share/OVMF/OVMF_CODE_4M.fd"
-  nvram {
-    file = "/var/lib/libvirt/qemu/nvram/${var.name}-VARS.fd"
-  }
+  running = true
 
-  xml {
-    xslt = var.has_gpu_passthru ? templatefile("${path.module}/templates/gpu-transform.xslt", { gpu_pci_bus = var.gpu_pci_bus }) : file("${path.module}/files/base-transform.xslt")
-  }
+  os = {
+    type         = "hvm"
+    arch         = "x86_64"
+    machine      = "q35"
+    boot_devices = ["hd"]
 
-  console {
-    type        = "pty"
-    target_port = "0"
-    target_type = "serial"
-  }
-
-  network_interface {
-    hostname = var.name
-    bridge   = "br0"
+    // EFI but has more hassels because VM removal with terraform requires virsh undefine <name> --nvram first
+    // sticking with "bios" as default for ease of use
+    # firmware    = "efi"
+    # loader_path = "/usr/share/OVMF/OVMF_CODE_4M.fd"
+    # loader_readonly = true
+    # loader_type     = "pflash"
+    # nvram = {
+    #   path     = "/var/lib/libvirt/qemu/nvram/${var.name}-VARS.fd"
+    #   template = "/usr/share/OVMF/OVMF_VARS_4M.fd"
+    # }
   }
 
-  cloudinit = libvirt_cloudinit_disk.cloudinit_iso.id
-  disk {
-    volume_id = libvirt_volume.root_disk.id
+  features = {
+    acpi = true
   }
 
-  dynamic "disk" {
-    // grab a slice from the list disk_sizes_gib, ignore the first element because its the root disk size
-    for_each = { for i, _ in slice(var.disk_sizes_gib, 1, length(var.disk_sizes_gib)) : i => true }
-    content {
-      volume_id = libvirt_volume.data_disk[disk.key].id
-    }
-  }
 
-  lifecycle {
-    ignore_changes = [
-      cloudinit
+  devices = {
+    consoles = [{
+      type        = "pty"
+      target_port = "0"
+      target_type = "serial"
+    }]
+
+
+    // quirk or bug, cdrom should be first otherwise it results in terraform before/ater apply inconsistencies when using more disks
+    disks = concat([{
+      device = "cdrom"
+      source = {
+        pool   = libvirt_volume.cloudinit_disk.pool
+        volume = libvirt_volume.cloudinit_disk.name
+      }
+      target = {
+        dev = "sda"
+        bus = "sata"
+      }
+      },
+      {
+        device = "disk"
+        source = {
+          // do not use file, as it results in 'raw' format in the dumpxml output
+          // in EFI 'raw' disks were not visible and failed to boot
+          pool   = libvirt_volume.root_disk.pool
+          volume = libvirt_volume.root_disk.name
+        }
+        target = {
+          dev = "vda"
+          bus = "virtio"
+        }
+      }
+    ], local.additional_disks)
+
+    interfaces = [
+      {
+        type  = "bridge"
+        model = "virtio"
+        source = {
+          bridge = "br0"
+        }
+      }
     ]
   }
+
+  # cpu {
+  #   mode = "host-passthrough"
+  # }
+
+  #   xml {
+  #     xslt = var.has_gpu_passthru ? templatefile("${path.module}/templates/gpu-transform.xslt", { gpu_pci_bus = var.gpu_pci_bus }) : file("${path.module}/files/base-transform.xslt")
+  #   }
+
 }

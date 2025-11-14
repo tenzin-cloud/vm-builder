@@ -7,22 +7,23 @@ A Terraform module that creates virtual machines on a libvirtd host.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.9 |
-| <a name="requirement_libvirt"></a> [libvirt](#requirement\_libvirt) | ~> 0.8 |
+| <a name="requirement_libvirt"></a> [libvirt](#requirement\_libvirt) | ~> 0.9 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_libvirt"></a> [libvirt](#provider\_libvirt) | 0.8.3 |
+| <a name="provider_libvirt"></a> [libvirt](#provider\_libvirt) | 0.9.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [libvirt_cloudinit_disk.cloudinit_iso](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/cloudinit_disk) | resource |
+| [libvirt_cloudinit_disk.cloudinit_seed](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/cloudinit_disk) | resource |
 | [libvirt_domain.machine](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/domain) | resource |
 | [libvirt_pool.datastore](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/pool) | resource |
-| [libvirt_volume.data_disk](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
+| [libvirt_volume.cloudinit_disk](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
+| [libvirt_volume.data_disks](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
 | [libvirt_volume.root_disk](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
 | [libvirt_volume.ubuntu_cloud_image](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
 
