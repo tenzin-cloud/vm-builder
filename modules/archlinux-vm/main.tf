@@ -158,4 +158,10 @@ resource "libvirt_domain" "machine" {
   cpu = {
     mode = "host-passthrough"
   }
+
+  lifecycle {
+    ignore_changes = [
+      devices.consoles[0].source_path // possible bug? source_path = "/dev/pts/2" -> null, then it complains about inconsistencies after apply
+    ]
+  }
 }
