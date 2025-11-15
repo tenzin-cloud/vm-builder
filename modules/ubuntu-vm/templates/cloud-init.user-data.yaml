@@ -26,6 +26,9 @@ packages:
   - git
   - curl
   - qemu-guest-agent
+  - avahi-daemon
+  - avahi-utils
+  - libnss-mdns
 
 power_state:
   mode: reboot
@@ -36,24 +39,10 @@ power_state:
 runcmd:
   - sed -i 's/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="mitigations=off"/g' /etc/default/grub
   - update-grub
-  - echo 'MulticastDNS=yes' >> /etc/systemd/resolved.conf
-  - systemctl daemon-reload
-  - systemctl restart systemd-networkd
-  - systemctl restart systemd-resolved
   - bash /tmp/launch_script.sh
 
-write_files:
-  - path: /etc/systemd/network/10-netplan-en_interfaces.network.d/override.conf
-    owner: root:root
-    permissions: 0o644
-    content: |-
-      [Match]
-      Name=en*
-
-      [Network]
-      MulticastDNS=yes
-
 %{ if length(launch_script) > 0 ~}
+write_files:
   - path: /tmp/launch_script.sh
     owner: root:root
     permissions: 0o744

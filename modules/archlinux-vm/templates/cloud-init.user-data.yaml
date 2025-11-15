@@ -28,6 +28,7 @@ packages:
   - curl
   - qemu-guest-agent
   - avahi
+  - nss-mdns
 
 power_state:
   mode: reboot
@@ -36,21 +37,11 @@ power_state:
   condition: true
 
 runcmd:
-  - echo 'MulticastDNS=yes' >> /etc/systemd/resolved.conf
-  - test -e /tmp/launch_script.sh && ash /tmp/launch_script.sh
-
-write_files:
-  - path: /etc/systemd/network/10-cloud-init-eth0.network.d/override.conf
-    owner: root:root
-    permissions: 0o644
-    content: |-
-      [Match]
-      Name=eth*
-
-      [Network]
-      MulticastDNS=yes
+  - systemctl enable avahi-daemon.service
+  - test -e /tmp/launch_script.sh && bash /tmp/launch_script.sh
 
 %{ if length(launch_script) > 0 ~}
+write_files:
   - path: /tmp/launch_script.sh
     owner: root:root
     permissions: 0o744
