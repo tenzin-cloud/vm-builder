@@ -168,4 +168,10 @@ resource "libvirt_domain" "machine" {
   #   xslt = var.has_gpu_passthru ? templatefile("${path.module}/templates/gpu-transform.xslt", { gpu_pci_bus = var.gpu_pci_bus }) : file("${path.module}/files/base-transform.xslt")
   # }
 
+  lifecycle {
+    ignore_changes = [
+      devices.consoles[0].source_path // possible bug? source_path = "/dev/pts/2" -> null, then it complains about inconsistencies after apply
+    ]
+  }
+
 }
