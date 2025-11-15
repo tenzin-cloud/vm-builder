@@ -63,3 +63,25 @@ module "ubuntu-vm" {
 
   launch_script = templatefile("${path.module}/templates/${var.vm_os}-launch_script.sh", {})
 }
+
+module "archlinux-vm" {
+
+  count  = var.vm_os == "archlinux-vm" ? var.vm_count : 0
+  source = "./modules/archlinux-vm"
+  name   = "${var.vm_name}-${count.index}"
+
+  cloud_image_url = var.vm_cloud_image_url
+
+  automation_user        = var.vm_automation_user
+  automation_user_pubkey = var.vm_automation_user_pubkey
+
+  console_user     = var.vm_console_user
+  console_password = var.vm_console_password
+
+  # vm settings
+  cpu_count       = var.vm_cpu_count
+  memory_size_gib = var.vm_memory_size_gib
+  disk_sizes_gib  = var.vm_disk_sizes_gib
+
+  launch_script = templatefile("${path.module}/templates/${var.vm_os}-launch_script.sh", {})
+}
