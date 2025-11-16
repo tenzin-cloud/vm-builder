@@ -37,6 +37,10 @@ power_state:
   condition: true
 
 runcmd:
+  - echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.d/60-ipv6disable.conf
+  - echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.d/60-ipv6disable.conf
+  - echo "net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.d/60-ipv6disable.conf
+  - sysctl -p
   - sed -i 's/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="mitigations=off ipv6.disable=1"/g' /etc/default/grub # my pip install takes forever over ipv6; could be buggy hw nic
   - update-grub
   - bash /tmp/launch_script.sh
