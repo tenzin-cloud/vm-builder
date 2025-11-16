@@ -35,7 +35,7 @@ module "centos-vm" {
   memory_size_gib = var.vm_memory_size_gib
   disk_sizes_gib  = var.vm_disk_sizes_gib
 
-  launch_script = templatefile("${path.module}/templates/${var.vm_os}-launch_script.sh", {})
+  launch_script = fileexists("${path.module}/launch_script.sh") ? file("${path.module}/launch_script.sh") : ""
 }
 
 module "ubuntu-vm" {
@@ -61,7 +61,7 @@ module "ubuntu-vm" {
   # has_gpu_passthru = true
   # gpu_pci_bus      = "03"
 
-  launch_script = templatefile("${path.module}/templates/${var.vm_os}-launch_script.sh", {})
+  launch_script = fileexists("${path.module}/launch_script.sh") ? file("${path.module}/launch_script.sh") : ""
 }
 
 module "archlinux-vm" {
@@ -83,5 +83,5 @@ module "archlinux-vm" {
   memory_size_gib = var.vm_memory_size_gib
   disk_sizes_gib  = var.vm_disk_sizes_gib
 
-  launch_script = templatefile("${path.module}/templates/${var.vm_os}-launch_script.sh", {})
+  launch_script = fileexists("${path.module}/launch_script.sh") ? file("${path.module}/launch_script.sh") : ""
 }
