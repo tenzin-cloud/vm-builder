@@ -21,7 +21,7 @@ variable "cpu_count" {
 variable "launch_script" {
   type        = string
   default     = ""
-  description = "The a custom script to run on the machine after cloud-init has finished"
+  description = "A shell script to run on the machine after cloud-init has finished"
 }
 
 variable "console_user" {

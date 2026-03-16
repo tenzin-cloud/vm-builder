@@ -3,7 +3,7 @@ terraform {
   required_providers {
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = "~> 0.9"
+      version = "= 0.9.5"
     }
   }
 }
@@ -17,9 +17,13 @@ resource "libvirt_pool" "datastore" {
 }
 
 resource "libvirt_volume" "cloud_image" {
-  name   = "${var.name}-cloud-image"
-  pool   = libvirt_pool.datastore.name
-  format = "qcow2"
+  name = "${var.name}-cloud-image"
+  pool = libvirt_pool.datastore.name
+  target = {
+    format = {
+      type = "qcow2"
+    }
+  }
   create = {
     content = {
       url = var.cloud_image_url
@@ -60,10 +64,16 @@ resource "libvirt_volume" "root_disk" {
   name     = "${var.name}-root-disk"
   capacity = var.disk_sizes_gib[0] * 1024 * 1024 * 1024 // size must be in bytes
   pool     = libvirt_pool.datastore.name
-  format   = "qcow2"
+  target = {
+    format = {
+      type = "qcow2"
+    }
+  }
   backing_store = {
-    path   = libvirt_volume.cloud_image.path
-    format = "qcow2"
+    path = libvirt_volume.cloud_image.path
+    format = {
+      type = "qcow2"
+    }
   }
 }
 
@@ -73,16 +83,24 @@ resource "libvirt_volume" "data_disks" {
   name     = "${var.name}-data-disk-${each.key}"
   capacity = each.value * 1024 * 1024 * 1024 // size must be in bytes
   pool     = libvirt_pool.datastore.name
-  format   = "qcow2"
+  target = {
+    format = {
+      type = "qcow2"
+    }
+  }
 }
 
 locals {
   dev_lookup = ["vdb", "vdc", "vdd", "vde", "vdf", "vdg", "vdh"] // max of 7 additional disks
   additional_disks = [for i, _ in libvirt_volume.data_disks : {
-    device = "disk"
     source = {
-      pool   = libvirt_volume.data_disks[i].pool
-      volume = libvirt_volume.data_disks[i].name
+      volume = {
+        pool   = libvirt_volume.data_disks[i].pool
+        volume = libvirt_volume.data_disks[i].name
+      }
+    }
+    driver = {
+      type = "qcow2"
     }
     target = {
       dev = local.dev_lookup[i] // used lookup table to convert index into dev names
@@ -92,20 +110,22 @@ locals {
 }
 
 resource "libvirt_domain" "machine" {
-  name      = var.name
-  autostart = var.autostart
-  memory    = var.memory_size_gib * 1024 // memory must be in mib
-  unit      = "MiB"
-  vcpu      = var.cpu_count
-  type      = "kvm"
+  name        = var.name
+  autostart   = var.autostart
+  memory      = var.memory_size_gib * 1024 // memory must be in mib
+  memory_unit = "MiB"
+  vcpu        = var.cpu_count
+  type        = "kvm"
 
   running = true
 
   os = {
-    type         = "hvm"
-    arch         = "x86_64"
-    machine      = "q35"
-    boot_devices = ["hd"]
+    type    = "hvm"
+    arch    = "x86_64"
+    machine = "q35"
+    boot_devices = [{
+      dev = "hd"
+    }]
   }
 
   features = {
@@ -125,8 +145,10 @@ resource "libvirt_domain" "machine" {
       {
         device = "cdrom"
         source = {
-          pool   = libvirt_volume.cloudinit_disk.pool
-          volume = libvirt_volume.cloudinit_disk.name
+          volume = {
+            pool   = libvirt_volume.cloudinit_disk.pool
+            volume = libvirt_volume.cloudinit_disk.name
+          }
         }
         target = {
           dev = "sda"
@@ -134,12 +156,16 @@ resource "libvirt_domain" "machine" {
         }
       },
       {
-        device = "disk"
         source = {
           # do not use file, as it results in 'raw' format in the dumpxml output
           # in EFI 'raw' disks were not visible and failed to boot
-          pool   = libvirt_volume.root_disk.pool
-          volume = libvirt_volume.root_disk.name
+          volume = {
+            pool   = libvirt_volume.root_disk.pool
+            volume = libvirt_volume.root_disk.name
+          }
+        }
+        driver = {
+          type = "qcow2"
         }
         target = {
           dev = "vda"
@@ -150,10 +176,12 @@ resource "libvirt_domain" "machine" {
 
     interfaces = [
       {
-        type  = "bridge"
-        model = "virtio"
+        model = {
+          type = "virtio"
+        }
         source = {
-          bridge = "br0"
+          dev  = "br0"
+          mode = "bridge"
         }
       }
     ]
@@ -168,10 +196,10 @@ resource "libvirt_domain" "machine" {
   #   xslt = var.has_gpu_passthru ? templatefile("${path.module}/templates/gpu-transform.xslt", { gpu_pci_bus = var.gpu_pci_bus }) : file("${path.module}/files/base-transform.xslt")
   # }
 
-  lifecycle {
-    ignore_changes = [
-      devices.consoles[0].source_path // possible bug? source_path = "/dev/pts/2" -> null, then it complains about inconsistencies after apply
-    ]
-  }
+  //  lifecycle {
+  //    ignore_changes = [
+  //      devices.consoles[0].source_path // possible bug? source_path = "/dev/pts/2" -> null, then it complains about inconsistencies after apply
+  //    ]
+  //  }
 
 }

@@ -7,25 +7,25 @@ A Terraform module that creates virtual machines on a libvirtd host.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.9 |
-| <a name="requirement_libvirt"></a> [libvirt](#requirement\_libvirt) | ~> 0.9 |
+| <a name="requirement_libvirt"></a> [libvirt](#requirement\_libvirt) | = 0.9.5 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_libvirt"></a> [libvirt](#provider\_libvirt) | 0.9.0 |
+| <a name="provider_libvirt"></a> [libvirt](#provider\_libvirt) | 0.9.5 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [libvirt_cloudinit_disk.cloudinit_seed](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/cloudinit_disk) | resource |
-| [libvirt_domain.machine](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/domain) | resource |
-| [libvirt_pool.datastore](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/pool) | resource |
-| [libvirt_volume.cloud_image](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
-| [libvirt_volume.cloudinit_disk](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
-| [libvirt_volume.data_disks](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
-| [libvirt_volume.root_disk](https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/volume) | resource |
+| [libvirt_cloudinit_disk.cloudinit_seed](https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.5/docs/resources/cloudinit_disk) | resource |
+| [libvirt_domain.machine](https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.5/docs/resources/domain) | resource |
+| [libvirt_pool.datastore](https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.5/docs/resources/pool) | resource |
+| [libvirt_volume.cloud_image](https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.5/docs/resources/volume) | resource |
+| [libvirt_volume.cloudinit_disk](https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.5/docs/resources/volume) | resource |
+| [libvirt_volume.data_disks](https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.5/docs/resources/volume) | resource |
+| [libvirt_volume.root_disk](https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.5/docs/resources/volume) | resource |
 
 ## Inputs
 
@@ -41,7 +41,7 @@ A Terraform module that creates virtual machines on a libvirtd host.
 | <a name="input_disk_sizes_gib"></a> [disk\_sizes\_gib](#input\_disk\_sizes\_gib) | n/a | `list(number)` | <pre>[<br/>  8<br/>]</pre> | no |
 | <a name="input_gpu_pci_bus"></a> [gpu\_pci\_bus](#input\_gpu\_pci\_bus) | n/a | `string` | `""` | no |
 | <a name="input_has_gpu_passthru"></a> [has\_gpu\_passthru](#input\_has\_gpu\_passthru) | n/a | `bool` | `false` | no |
-| <a name="input_launch_script"></a> [launch\_script](#input\_launch\_script) | The a custom script to run on the machine after cloud-init has finished | `string` | `""` | no |
+| <a name="input_launch_script"></a> [launch\_script](#input\_launch\_script) | A shell script to run on the machine after cloud-init has finished | `string` | `""` | no |
 | <a name="input_memory_size_gib"></a> [memory\_size\_gib](#input\_memory\_size\_gib) | n/a | `number` | `2` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the virtual machine | `string` | n/a | yes |
 <!-- END_TF_DOCS -->
