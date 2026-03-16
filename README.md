@@ -77,7 +77,6 @@ vdh     253:112  0   64G  0 disk
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_centos-vm"></a> [centos-vm](#module\_centos-vm) | ./modules/centos-vm | n/a |
 | <a name="module_ubuntu-vm"></a> [ubuntu-vm](#module\_ubuntu-vm) | ./modules/ubuntu-vm | n/a |
 
 ## Inputs
