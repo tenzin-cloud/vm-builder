@@ -180,9 +180,8 @@ resource "libvirt_domain" "machine" {
           type = "virtio"
         }
         source = {
-          direct = {
-            dev  = "br0"
-            mode = "bridge"
+          bridge = {
+            bridge = "br0"
           }
         }
       }
