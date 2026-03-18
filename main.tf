@@ -17,8 +17,7 @@ provider "libvirt" {
 }
 
 module "ubuntu-vm" {
-
-  count  = var.vm_os == "ubuntu-vm" ? var.vm_count : 0
+  count  = var.vm_count
   source = "./modules/ubuntu-vm"
   name   = "${var.vm_name}-${count.index}"
 
